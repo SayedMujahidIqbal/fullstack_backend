@@ -3,7 +3,7 @@ const app = express()
 
 app.use(express.json())
 
-const persions = [
+const persons = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -27,7 +27,21 @@ const persions = [
 ]
 
 app.get('/api/persons', (req, res) => {
-    res.json(persions)
+    res.json(persons)
+})
+
+app.get('/info', (req, res) => {
+    const numberOfInfosInPhonebook = persons.length
+    const options = { 
+        weekday: 'long', 
+        month: 'long', 
+        year: 'numeric',  
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: false 
+    }
+    res.send(`<p>Phonebook has info for ${numberOfInfosInPhonebook} people</p><p>${new Date().toLocaleDateString('en-US', options)} ${new Date().toString().match(/([A-Z]+[\+-][0-9]+.*)/)[1]}</p>`)
 })
 
 const PORT = 3001
