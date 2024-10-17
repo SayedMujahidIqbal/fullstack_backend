@@ -2,6 +2,29 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 
+let persons = [
+  { 
+    "id": "1",
+    "name": "Arto Hellas", 
+    "number": "040-123456"
+  },
+  { 
+    "id": "2",
+    "name": "Ada Lovelace", 
+    "number": "39-44-5323523"
+  },
+  { 
+    "id": "3",
+    "name": "Dan Abramov", 
+    "number": "12-43-234345"
+  },
+  { 
+    "id": "4",
+    "name": "Mary Poppendieck", 
+    "number": "39-23-6423122"
+  }
+]
+
 app.use(express.json())
 
 /////// Morgan middlewares logs request method, url , status and response length and response time
@@ -24,30 +47,6 @@ morgan.token('body', req => {
 
 app.use(morgan(':method :url :body'))
 
-
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 const generateId = () => {
   const maxId = persons.length > 0
   ? Math.max(...persons.map(n => Number(n.id)))
@@ -69,9 +68,9 @@ app.get('/api/persons/:id', (req, res) => {
 }
 })
 
-app.delete('/api/persons/delete/:id', (req, res) => {
+app.delete('/api/persons/:id', (req, res) => {
   const personId = req.params.id
-  const persons = persons.filter(person => person.id !== personId)
+  persons = persons.filter(person => person.id !== personId)
   res.status(204).end()
 })
 
