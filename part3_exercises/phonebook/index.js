@@ -1,7 +1,29 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
 
 app.use(express.json())
+
+/////// Morgan middlewares logs request method, url , status and response length and response time
+app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+app.use(morgan(function (tokens, req, res) {
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, 'content-length'), '-',
+    tokens['response-time'](req, res), 'ms'
+  ].join(' ')
+}))
+
+////////////// Creating Token to return request body //////////////////
+morgan.token('body', req => {
+  return JSON.stringify(req.body)
+})
+
+app.use(morgan(':method :url :body'))
+
 
 let persons = [
     { 
