@@ -3,7 +3,7 @@ const app = express()
 
 app.use(express.json())
 
-const persons = [
+let persons = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -26,8 +26,56 @@ const persons = [
     }
 ]
 
+const generateId = () => {
+  const maxId = persons.length > 0
+  ? Math.max(...persons.map(n => Number(n.id)))
+  : 0
+  return String(maxId + 1)
+}
+
 app.get('/api/persons', (req, res) => {
     res.json(persons)
+})
+
+app.get('/api/persons/:id', (req, res) => {
+  const personId = req.params.id
+  const person = persons.find(person => person.id === personId)
+  if(person){
+    res.json(person)
+  }else{
+    res.status(404).end()
+}
+})
+
+app.delete('/api/persons/delete/:id', (req, res) => {
+  const personId = req.params.id
+  const persons = persons.filter(person => person.id !== personId)
+  res.status(204).end()
+})
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+
+  if(!body.name || !body.number){
+    return res.status(400).json({
+      error: 'content missing'
+    })
+  } 
+  const alreadyExist = persons.find(person => person.name === body.name)
+  if(alreadyExist){
+    return res.status(400).json({
+      error: 'name must be unique'
+    })
+  } else {
+    const person = {
+      name: body.name,
+      number: body.number,
+      id: generateId()
+    }
+  
+    persons = persons.concat(person)
+    res.status(200).json(person)
+  }
 })
 
 app.get('/info', (req, res) => {
