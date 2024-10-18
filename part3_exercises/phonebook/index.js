@@ -26,6 +26,7 @@ let persons = [
 ]
 
 app.use(express.json())
+app.use(express.static('dist'))
 
 /////// Morgan middlewares logs request method, url , status and response length and response time
 app.use(morgan('tiny'))
@@ -113,7 +114,7 @@ app.get('/info', (req, res) => {
     res.send(`<p>Phonebook has info for ${numberOfInfosInPhonebook} people</p><p>${new Date().toLocaleDateString('en-US', options)} ${new Date().toString().match(/([A-Z]+[\+-][0-9]+.*)/)[1]}</p>`)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
    console.log(`Server is running at http://localhost:${PORT}`) 
 })
