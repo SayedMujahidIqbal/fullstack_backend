@@ -77,7 +77,7 @@ app.post('/api/persons', (req, res, next) => {
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
-  Person.findByIdAndDelete(req.params.id).then(result => {
+  Person.findByIdAndDelete(req.params.id).then(deletedPerson => {
       res.status(204).end()
   }).catch(error => next(error))
 })
@@ -114,14 +114,13 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } else if(error.nam === "ValidatorError"){
+  } else if(error.name === 'ValidationError'){
     return response.status(400).json({ error: error.message })
   }
 
   next(error)
 }
 
-// this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
 
 const PORT = process.env.PORT
