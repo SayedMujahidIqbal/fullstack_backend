@@ -4,6 +4,7 @@ const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
 const Person = require('./models/person.js')
+const morgan = require('morgan')
 
 
 mongoose.set('strictQuery', false)
@@ -22,6 +23,26 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('dist'))
 
+
+/////// Morgan middlewares logs request method, url , status and response length and response time
+app.use(morgan('tiny'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms'))
+app.use(morgan(function (tokens, req, res) {
+  return [
+    tokens.method(req, res),
+    tokens.url(req, res),
+    tokens.status(req, res),
+    tokens.res(req, res, 'content-length'), '-',
+    tokens['response-time'](req, res), 'ms'
+  ].join(' ')
+}))
+
+////////////// Creating Token to return request body //////////////////
+morgan.token('body', req => {
+  return JSON.stringify(req.body)
+})
+
+app.use(morgan(':method :url :body'))
 
 
 app.get('/api/persons', (req, res) => {
