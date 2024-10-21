@@ -56,7 +56,7 @@ app.get('/api/persons', (req, res, next) => {
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
-  Person.find(req.params.id).then(person => {
+  Person.findOne({_id: req.params.id}).then(person => {
     if(person){
       res.json(person)
     }else{
@@ -101,8 +101,7 @@ app.put('/api/persons/:id', (req, res, next) => {
   }).catch(error => next(error))
 })
 
-app.get('/info', (req, res) => {
-    const numberOfInfosInPhonebook = persons.length
+app.get('/info', async (req, res, next) => {
     const options = { 
         weekday: 'long', 
         month: 'long', 
@@ -112,7 +111,7 @@ app.get('/info', (req, res) => {
         second: '2-digit', 
         hour12: false 
     }
-    res.send(`<p>Phonebook has info for ${numberOfInfosInPhonebook} people</p><p>${new Date().toLocaleDateString('en-US', options)} ${new Date().toString().match(/([A-Z]+[\+-][0-9]+.*)/)[1]}</p>`)
+    res.send(`<p>Phonebook has info for ${await Person.countDocuments({})} people</p><p>${new Date().toLocaleDateString('en-US', options)} ${new Date().toString().match(/([A-Z]+[\+-][0-9]+.*)/)[1]}</p>`)
 })
 
 const unKnownEndPoint = (request, response) => {
