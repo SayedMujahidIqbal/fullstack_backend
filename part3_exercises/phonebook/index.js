@@ -46,17 +46,17 @@ app.use(morgan(':method :url :body'))
 
 
 app.get('/api/persons', (req, res, next) => {
-    Person.find({}).then(persons => {
-      if(persons){
-        res.json(persons)
-      }else{
-        res.status(204).end()
-      }
-    }).catch(error => next(error))
+  Person.find({}).then(persons => {
+    if(persons){
+      res.json(persons)
+    }else{
+      res.status(204).end()
+    }
+  }).catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
-  Person.findOne({_id: req.params.id}).then(person => {
+  Person.findOne({ _id: req.params.id }).then(person => {
     if(person){
       res.json(person)
     }else{
@@ -66,41 +66,41 @@ app.get('/api/persons/:id', (req, res, next) => {
 })
 
 app.post('/api/persons', (req, res, next) => {
-    const body = req.body
-    const person = new Person({
-      name: body.name,
-      number: body.number
-    })
-    person.save().then(savedPerson => {
-      res.json(savedPerson)
-    }).catch(error => next(error))
+  const body = req.body
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  })
+  person.save().then(savedPerson => {
+    res.json(savedPerson)
+  }).catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id).then(deletedPerson => {
-      res.status(204).end()
+    res.status(204).end()
   }).catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
-  const {name, number} = req.body
+  const { name, number } = req.body
 
-  Person.findByIdAndUpdate(req.params.id, {name, number}, { new: true, runValidators: true, context: 'query' }).then(updatedPerson => {
-      res.json(updatedPerson)
+  Person.findByIdAndUpdate(req.params.id, { name, number }, { new: true, runValidators: true, context: 'query' }).then(updatedPerson => {
+    res.json(updatedPerson)
   }).catch(error => next(error))
 })
 
-app.get('/info', async (req, res, next) => {
-    const options = { 
-        weekday: 'long', 
-        month: 'long', 
-        year: 'numeric',  
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit', 
-        hour12: false 
-    }
-    res.send(`<p>Phonebook has info for ${await Person.countDocuments({})} people</p><p>${new Date().toLocaleDateString('en-US', options)} ${new Date().toString().match(/([A-Z]+[\+-][0-9]+.*)/)[1]}</p>`)
+app.get('/info', async (req, res) => {
+  const options = {
+    weekday: 'long',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }
+  res.send(`<p>Phonebook has info for ${await Person.countDocuments({})} people</p><p>${new Date().toLocaleDateString('en-US', options)} ${new Date().toString().match(/([A-Z]+[+-][0-9]+.*)/)[1]}</p>`)
 })
 
 const unKnownEndPoint = (request, response) => {
@@ -125,5 +125,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-   console.log(`Server is running at http://localhost:${PORT}`) 
+  console.log(`Server is running at http://localhost:${PORT}`)
 })
