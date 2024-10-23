@@ -1,7 +1,6 @@
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
-
-const calculateLikes = require('../utils/list_helper').calculateLikes
+const listHelper = require('../utils/list_helper')
 
 const emptyBlogs = []
 
@@ -67,14 +66,21 @@ const blogs = [
 
 describe('total likes', () => {
     test('of empty list is zero', () => {
-        assert.strictEqual(calculateLikes(emptyBlogs), 0)
+        assert.strictEqual(listHelper.calculateLikes(emptyBlogs), 0)
     })
     test('when list has only one blog has likes equal to that blog likes ', () => {
-        assert.strictEqual(calculateLikes(oneBlog), oneBlog.likes)
+        assert.strictEqual(listHelper.calculateLikes(oneBlog), oneBlog.likes)
     })
     test('when list has many blogs' ,() => {
-        assert.strictEqual(calculateLikes(blogs), blogs.reduce((totalLikes, curr) => {
+        assert.strictEqual(listHelper.calculateLikes(blogs), blogs.reduce((totalLikes, curr) => {
             return totalLikes + curr.likes
         }, 0))
+    })
+    test('returns favourite blog with most likes' ,() => {
+        assert.deepStrictEqual(listHelper.favoriteBlog(blogs), {
+            title: "Canonical string reduction",
+            author: "Edsger W. Dijkstra",
+            likes: 12
+        })
     })
 })
