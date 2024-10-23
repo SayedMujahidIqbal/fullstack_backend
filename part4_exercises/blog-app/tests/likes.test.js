@@ -95,4 +95,10 @@ describe('total likes', () => {
         blogs: 7
       })
     })
+    test('returns author with most number of likes' ,() => {
+      assert.deepStrictEqual(listHelper.autherWithMostLikes(blogs), {
+        author: "Edsger W. Dijkstra",
+        likes: 12
+      })
+    })
 })

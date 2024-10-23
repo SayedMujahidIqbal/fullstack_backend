@@ -40,10 +40,23 @@ const authorWithMostBlogs = (blogs) => {
     return { author: blog.author, blogs: blog.blogs }
 }
 
+const autherWithMostLikes = (blogs) => {
+    const blog = blogs.reduce((max, curr) => {
+        if(max.likes < curr.likes){
+            max = curr
+        }
+        return max
+    })
+    return {  
+        author: blog.author, 
+        likes: blog.likes 
+    }
+}
 
 module.exports = {
     dummy, 
     calculateLikes,
     favoriteBlog,
-    authorWithMostBlogs
+    authorWithMostBlogs,
+    autherWithMostLikes
 }
