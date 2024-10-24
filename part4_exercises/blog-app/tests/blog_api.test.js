@@ -41,6 +41,26 @@ test('unique identifier _id of a blog is named as id', async () => {
     })
 })
 
+test.only('a valid blog can be added', async () => {
+    const newBlog = {
+        title: "Proztec A diary",
+        author: "Mujahid",
+        url: "ttp://www.u.arizona.edu/~rubinson/copyright_violations/proztec_Harmful.html",
+        likes: 6
+    }
+    await api
+        .post(`/api/blogs`)
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+
+    const titles = blogsAtEnd.map(b => b.title)
+    assert(titles.includes('Proztec A diary'))
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
