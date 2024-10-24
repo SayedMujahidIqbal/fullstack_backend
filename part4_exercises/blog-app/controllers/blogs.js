@@ -3,22 +3,21 @@ const Blog = require('../models/blog')
 const logger = require('../utils/logger')
 
 
-blogsRouter.get('/', (req, res, next) => {
-    Blog.find({}).then(blogs => {
-        res.json(blogs)
-    }).catch(error => next(error))
+blogsRouter.get('/', async (request, response) => {
+    const blogs = await Blog.find({})
+    response.json(blogs)
 })
 
-blogsRouter.get('/api/blogs/:id', (req, res, next) => {
-    Blog.findById(req.params.id).then(blog => {
+blogsRouter.get('/api/blogs/:id', (request, response) => {
+    Blog.findById(request.params.id).then(blog => {
         if(blog){
-            res.json(note)
+            response.json(note)
         }else{
-            res.status(404).end()
+            response.status(404).end()
         }
     })
     Blog.find({}).then(blogs => {
-        res.json(blogs)
+        response.json(blogs)
     }).catch(error => next(error))
 })
 
