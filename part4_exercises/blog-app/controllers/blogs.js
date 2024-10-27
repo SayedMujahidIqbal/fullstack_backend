@@ -8,21 +8,17 @@ blogsRouter.get('/', async (request, response) => {
     response.json(blogs)
 })
 
-blogsRouter.get('/api/blogs/:id', (request, response) => {
-    Blog.findById(request.params.id).then(blog => {
-        if(blog){
-            response.json(note)
-        }else{
-            response.status(404).end()
-        }
-    })
-    Blog.find({}).then(blogs => {
-        response.json(blogs)
-    }).catch(error => next(error))
+blogsRouter.get('/:id', async (request, response) => {
+    const blog = await Blog.findById(request.params.id)
+    if(blog){
+        response.json(blog)
+    }else{
+        response.status(404).end()
+    }
 })
 
-blogsRouter.post('/', async (req, res, next) => {
-    const body = req.body
+blogsRouter.post('/', async (request, response) => {
+    const body = request.body
     const blog = new Blog({
         title: body.title,
         author: body.author,
@@ -32,6 +28,11 @@ blogsRouter.post('/', async (req, res, next) => {
 
     const savedBlog = await blog.save()
     response.status(201).json(savedBlog)
+})
+
+blogsRouter.delete('/:id', async (request, response) => {
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
 })
 
 
