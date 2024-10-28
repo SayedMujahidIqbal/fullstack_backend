@@ -160,10 +160,12 @@ describe('when there is initially some blogs saved', () => {
             const blogs = await helper.blogsInDb()
             let blogToBeUpdated = blogs[blogs.length - 1]
             blogToBeUpdated = {...blogToBeUpdated, likes: 10}
-            await api
+            const response = await api
                 .put(`/api/blogs/${blogToBeUpdated.id}`)
                 .send(blogToBeUpdated)
                 .expect(200)
+
+            assert.deepStrictEqual(response.body, blogToBeUpdated)
         })
     })
 })
