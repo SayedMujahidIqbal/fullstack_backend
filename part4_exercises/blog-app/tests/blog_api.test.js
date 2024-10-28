@@ -154,6 +154,18 @@ describe('when there is initially some blogs saved', () => {
             assert(!titles.includes(blogToDelete.title))
         })
     })
+
+    describe('updation of a blog', () => {
+        test('succeeds with status code 200 if id is valid', async () => {
+            const blogs = await helper.blogsInDb()
+            let blogToBeUpdated = blogs[blogs.length - 1]
+            blogToBeUpdated = {...blogToBeUpdated, likes: 10}
+            await api
+                .put(`/api/blogs/${blogToBeUpdated.id}`)
+                .send(blogToBeUpdated)
+                .expect(200)
+        })
+    })
 })
 
 after(async () => {
