@@ -1,8 +1,9 @@
+const jwt = require('jsonwebtoken')
 const usersRouter = require('express').Router()
 const bcrypt = require('bcrypt')
 const { body, validationResult} = require('express-validator')
 const User = require('../models/user')
- 
+
 
 usersRouter.get('/', async (request, respnse) => {
     const users = await User.find({}).populate('blogs', { title: 1, author: 1, likes:1 })
@@ -22,7 +23,7 @@ usersRouter.post('/', [
 
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds)
-    
+
     const user = new User({
         username:username,
         name: name,
