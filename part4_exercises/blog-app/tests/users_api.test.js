@@ -2,7 +2,6 @@ const { test, after, beforeEach, describe } = require('node:test')
 const assert = require('node:assert')
 const supertest = require('supertest')
 const mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
 const User = require('../models/user')
 const helper = require('./test_helper')
 const app = require('../app')
@@ -13,11 +12,9 @@ describe('when there is initially one user in the db', () => {
     beforeEach(async () => {
         await User.deleteMany({})
 
-        const passHash = await bcrypt.hash('secret', 10)
         const user = new User({ username: 'root' })
         await user.save() 
     })
-
     test('succeeds with fresh username', async () => {
         const usersAtStart = await helper.usersInDb()
 
