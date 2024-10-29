@@ -19,7 +19,15 @@ const errorHandler = (error, request, response, next) => {
     next(error)
 }
 
+const tokenExtractor = (request, response, next) => {
+    if(request.headers.authorization && request.headers.authorization.split(' ')[0] === 'Bearer'){
+        request.token = request.headers.authorization.split(' ')[1]    
+    }
+    next()
+}
+
 module.exports = {
     unknwonEndPoint,
-    errorHandler
+    errorHandler,
+    tokenExtractor
 }
