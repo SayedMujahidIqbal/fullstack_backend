@@ -1,5 +1,6 @@
 const usersRouter = require('express').Router()
 const bcrypt = require('bcrypt')
+const { body, validationResult} = require('express-validator')
 const User = require('../models/user')
  
 
@@ -8,8 +9,16 @@ usersRouter.get('/', async (request, respnse) => {
     respnse.json(users)
 })
 
-usersRouter.post('/', async (request, response) => {
+usersRouter.post('/', [
+    body('password', '`Password` must be atleast 3 characters long').isLength({ min: 3 })
+], async (request, response) => {
     const { username, name, password } = request.body
+
+    const errors = validationResult(request)
+
+    if(!errors.isEmpty()){
+        return response.status(400).json({ error: errors.array().map(e => e.msg) })
+    }
 
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(password, saltRounds)

@@ -9,7 +9,7 @@ const app = require('../app')
 
 const api = supertest(app)
 
-describe('when is there is one user in the db', () => {
+describe('when there is initially one user in the db', () => {
     beforeEach(async () => {
         await User.deleteMany({})
 
@@ -55,8 +55,31 @@ describe('when is there is one user in the db', () => {
             .expect(400)
             .expect('Content-Type', /application\/json/)
 
+        
         const usersAtEnd = await helper.usersInDb()
         assert(result.body.error.includes('expected `username` to be unique'))
+
+        assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+    })
+
+    test('creation fails with proper statuscode and message if user is invalid', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: "",
+            name: "Superuser",
+            password: "sasd"
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        
+        const usersAtEnd = await helper.usersInDb()
+        assert(result.body.error.matchAll(['`Password` must be atleast 3 characters long', '`Username` should be atleast 3 characters long']))
 
         assert.strictEqual(usersAtEnd.length, usersAtStart.length)
     })
