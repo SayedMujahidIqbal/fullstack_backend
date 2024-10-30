@@ -15,70 +15,104 @@ describe('when there is initially one user in the db', () => {
         const user = new User({ username: 'root' })
         await user.save() 
     })
-    test('succeeds with fresh username', async () => {
-        const usersAtStart = await helper.usersInDb()
+    describe('when user register', () => {
+        test('succeeds with fresh username', async () => {
+            const usersAtStart = await helper.usersInDb()
+    
+            const newUser = {
+                username: "muji",
+                name: "mujahid",
+                password: "mypass"
+            }
+    
+            await api
+                .post('/api/users')
+                .send(newUser)
+                .expect(201)
+                .expect('Content-Type', /application\/json/)
+    
+            const usersAtEnd = await helper.usersInDb()
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
+    
+            const usernames = usersAtEnd.map(u => u.username)
+            assert(usernames.includes(newUser.username))
+        })
+        test('creation fails with proper statuscode and message if username is already taken', async () => {
+            const usersAtStart = await helper.usersInDb()
+            
+            const newUser = {
+                username: "root",
+                name: "Superuser",
+                password: "super"
+            }
+    
+            const result = await api
+                .post('/api/users')
+                .send(newUser)
+                .expect(400)
+                .expect('Content-Type', /application\/json/)
+    
+            
+            const usersAtEnd = await helper.usersInDb()
+            assert(result.body.error.includes('expected `username` to be unique'))
 
-        const newUser = {
-            username: "sadik",
-            name: "Asad",
-            password: "sadika"
-        }
-
-        await api
-            .post('/api/users')
-            .send(newUser)
-            .expect(201)
-            .expect('Content-Type', /application\/json/)
-
-        const usersAtEnd = await helper.usersInDb()
-        assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
-
-        const usernames = usersAtEnd.map(u => u.username)
-        assert(usernames.includes(newUser.username))
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+        })
+    
+        test('creation fails with proper statuscode and message if user is invalid', async () => {
+            const usersAtStart = await helper.usersInDb()
+    
+            const newUser = {
+                username: "saju",
+                name: "Superuser",
+                password: "s"
+            }
+    
+            const result = await api
+                .post('/api/users')
+                .send(newUser)
+                .expect(400)
+                .expect('Content-Type', /application\/json/)
+    
+            
+            const usersAtEnd = await helper.usersInDb()
+            if(result.body.errors){
+                assert(result.body.errors.includes('`Password` must be atleast 3 characters long'))
+            } else {
+                assert(result.body.error.includes('`Username` must be atleast 3 characters long'))
+            }
+    
+            assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+        })
     })
+    describe('when user try to login', () =>{
+        test('when user loggedin', async () => {
+            const newUser = {
+                username: "superuser",
+                name: "Mujahid",
+                password: "mypass"
+            }
+    
+            await api
+                .post('/api/users')
+                .send(newUser)
+                .expect(201)
+                .expect('Content-Type', /application\/json/)   
 
-    test('creation fails with proper statuscode and message if username is already taken', async () => {
-        const usersAtStart = await helper.usersInDb()
+            const userToLogin = {
+                username: 'superuser',
+                password: 'mypass'
+            }
 
-        const newUser = {
-            username: "root",
-            name: "Superuser",
-            password: "super"
-        }
+            const result = await api
+                        .post('/api/login')
+                        .send(userToLogin)
+                        .expect('Content-Type', /application\/json/)
 
-        const result = await api
-            .post('/api/users')
-            .send(newUser)
-            .expect(400)
-            .expect('Content-Type', /application\/json/)
-
-        
-        const usersAtEnd = await helper.usersInDb()
-        assert(result.body.error.includes('expected `username` to be unique'))
-
-        assert.strictEqual(usersAtEnd.length, usersAtStart.length)
-    })
-
-    test('creation fails with proper statuscode and message if user is invalid', async () => {
-        const usersAtStart = await helper.usersInDb()
-
-        const newUser = {
-            username: "",
-            name: "Superuser",
-            password: "sasd"
-        }
-
-        const result = await api
-            .post('/api/users')
-            .send(newUser)
-            .expect(400)
-            .expect('Content-Type', /application\/json/)
-
-        
-        const usersAtEnd = await helper.usersInDb()
-        assert(result.body.error.matchAll(['`Password` must be atleast 3 characters long', '`Username` should be atleast 3 characters long']))
-
-        assert.strictEqual(usersAtEnd.length, usersAtStart.length)
+            console.log(result.body.token)
+            
+            assert.strictEqual(result.body.username, userToLogin.username)
+        })
     })
 })
 

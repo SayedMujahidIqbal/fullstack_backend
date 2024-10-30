@@ -9,7 +9,7 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.get('/:id', async (request, response) => {
-    const blog = await Blog.findById(request.params.id).populate('user', {username: 1, name: 1})
+    const blog = await Blog.findById(request.params.id)
     if(blog){
         response.json(blog)
     }else{
@@ -19,46 +19,39 @@ blogsRouter.get('/:id', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
     const body = request.body
-
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-        if(!decodedToken.id){
-            return response.status(401).send('Token invalid')
-        }
-
-    const user = await User.findById(decodedToken.id)
-
-    const blog = new Blog({
-        title: body.title,
-        author: body.author,
-        url: body.url,
-        likes: body.likes,
-        creator: user.id
-    })
-
-    const savedBlog = await blog.save()
-    user.blogs = user.blogs.concat(savedBlog._id)
-    await user.save()
-
-    response.status(201).json(savedBlog)
+    if(request.user){
+        const user = await User.findById(request.user._id)
+        const blog = new Blog({
+            title: body.title,
+            author: body.author,
+            url: body.url,
+            likes: body.likes,
+            creator: user.id
+        })
+        const savedBlog = await blog.save()
+        user.blogs = user.blogs.concat(savedBlog._id)
+        await user.save()
+        response.status(201).json(savedBlog)
+    } else {
+        response.status(401).send('invalid token')
+    }
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    if(!decodedToken.id){
-        return response.status(401).send('Token invalid')
-    }
-
     const blogTobeDeleted = await Blog.findById(request.params.id)
-
-    if(decodedToken.id !== blogTobeDeleted.creator.toString()){
-        response.status(400).json({ error: 'Blog deletion failed' }) 
+    if(request.user){
+        const user = request.user
+        if(user._id.toString() !== blogTobeDeleted.creator.toString()){
+            response.status(400).json({ error: 'Request not authorized' }) 
+        } else {
+            await Blog.findByIdAndDelete(request.params.id)
+            const userWithUpdatedBlogs = await User.findById(user._id)
+            userWithUpdatedBlogs.blogs = userWithUpdatedBlogs.blogs.filter(blog => blog._id.toString() !== request.params.id)
+            await userWithUpdatedBlogs.save()
+            response.status(204).end()
+        }
     } else {
-        await Blog.findByIdAndDelete(request.params.id)
-        const user = await User.findById(decodedToken.id)
-        user.blogs = user.blogs.filter(blog => blog._id.toString() !== request.params.id)
-        await user.save()
-        response.status(204).end()
+        response.status(401).send('invalid token')
     }
 })
 

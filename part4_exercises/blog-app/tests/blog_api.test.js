@@ -5,13 +5,26 @@ const helper = require('./test_helper')
 const mongoose = require('mongoose')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const api = supertest(app)
 
 
 describe('when there is initially some blogs saved', () => {
+    let userToken = ''
     beforeEach(async () => {
         await Blog.deleteMany({})
         await Blog.insertMany(helper.initialBlogs)
+        const newUser = {
+            username:"superuser",
+            name: "mujahid",
+            password:"mypass"        
+        }
+
+        await User.create({ 
+            username: newUser.username,
+            name: newUser.name,
+            
+         })
     })
 
     test('blogs are returned in json format' ,async () => {
@@ -90,10 +103,10 @@ describe('when there is initially some blogs saved', () => {
                 author: 'Mujahid',
                 url: 'https://mujiBlogs.com/myblog.html',
                 likes: 4
-            }
-
+            }            
             await api
                 .post('/api/blogs')
+                .set('Authorization', token)
                 .send(newBlog)
                 .expect(201)
                 .expect('Content-Type', /application\/json/)
@@ -128,6 +141,7 @@ describe('when there is initially some blogs saved', () => {
             const newBlog = {
                 author: "Mujahid",
             }
+
             await api
                 .post(`/api/blogs`)
                 .send(newBlog)

@@ -18,7 +18,7 @@ usersRouter.post('/', [
     const errors = validationResult(request)
 
     if(!errors.isEmpty()){
-        return response.status(400).json({ error: errors.array().map(e => e.msg) })
+        return response.status(400).json({ errors: errors.array().map(e => e.msg) })
     }
 
     const saltRounds = 10
