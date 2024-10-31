@@ -108,8 +108,6 @@ describe('when there is initially one user in the db', () => {
                         .post('/api/login')
                         .send(userToLogin)
                         .expect('Content-Type', /application\/json/)
-
-            console.log(result.body.token)
             
             assert.strictEqual(result.body.username, userToLogin.username)
         })
