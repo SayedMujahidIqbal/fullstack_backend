@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const mongoose = require('mongoose')
 
 blogsRouter.get('/', async (request, response) => {
     const blogs = await Blog.find({}).populate('creator', {username: 1, name: 1})
@@ -58,8 +59,16 @@ blogsRouter.delete('/:id', async (request, response) => {
 
 blogsRouter.put('/:id', async (request, response) => {
     const { title, author, url, likes } = request.body
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes }, { new: true, runValidators: true, context: 'query'})
-    response.status(200).json(updatedBlog)
+	if(request.user){
+		const user = request.user
+        const blogTobeUpdated = await Blog.findById(request.params.id)
+		if(user._id.toString() !== blogTobeUpdated.creator.toString()){
+            response.status(400).json({ error: 'Request not authorized' })
+		}  else {
+			const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes, creator: request.user._id }, { new: true, runValidators: true, context: 'query'})
+			response.json(updatedBlog)
+		}
+	}	
 })
 
 
