@@ -60,15 +60,11 @@ blogsRouter.delete('/:id', async (request, response) => {
 blogsRouter.put('/:id', async (request, response) => {
     const { title, author, url, likes } = request.body
 	if(request.user){
-		const user = request.user
-        const blogTobeUpdated = await Blog.findById(request.params.id)
-		if(user._id.toString() !== blogTobeUpdated.creator.toString()){
-            response.status(400).json({ error: 'Request not authorized' })
-		}  else {
-			const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes, creator: request.user._id }, { new: true, runValidators: true, context: 'query'})
-			response.json(updatedBlog)
-		}
-	}	
+        const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes, creator: request.body.creator.id }, { new: true, runValidators: true, context: 'query'})
+        response.json(updatedBlog)
+	}else{
+        response.status(401).json('invlalid token')
+    }	
 })
 
 
